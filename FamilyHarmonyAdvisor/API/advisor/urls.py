@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from familyadvisor import views
 
@@ -23,6 +24,9 @@ urlpatterns = [
    
        path('admin/', admin.site.urls),
     # path('api/', include('advisor.urls')),
-       path('test-mongodb-connection/', views.test_mongodb_connection, name='test-mongodb-connection'),
-    path('health/', views.health_check, name='health-check'),
+    #    path('test-mongodb-connection/', views.test_mongodb_connection, name='test-mongodb-connection'),
+    # path('health/', views.health_check, name='health-check'),
+    path('api/auth/', include('authentication.urls')),  # Include authentication URLs
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # path('api/', include('familyadvisor.urls')),
 ]
