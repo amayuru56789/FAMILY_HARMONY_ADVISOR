@@ -54,19 +54,43 @@ api.interceptors.response.use(
 
 export const authService = {
   login: async (credentials) => {
-    const response = await api.post('/login/', credentials);
+    const response = await api.post('/auth/login/', credentials);
+    const { user, tokens } = response.data;
+
+     // Store both tokens and user data
+      localStorage.setItem('accessToken', tokens.access);
+      localStorage.setItem('refreshToken', tokens.refresh);
+      localStorage.setItem('user', JSON.stringify(user));
+
     return response.data;
   },
 
   register: async (userData) => {
-    const response = await api.post('/register/', userData);
+    const response = await api.post('auth/register/', userData);
+       const { user, tokens } = response.data;
+      
+      // Store both tokens and user data on registration too
+      localStorage.setItem('accessToken', tokens.access);
+      localStorage.setItem('refreshToken', tokens.refresh);
+      localStorage.setItem('user', JSON.stringify(user));
+
     return response.data;
   },
 
-  logout: () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+  logout: async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        // Call logout endpoint to blacklist the refresh token
+        await api.post('/auth/logout/', { refresh: refreshToken });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+    }
   },
 
   getCurrentUser: () => {
